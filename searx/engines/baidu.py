@@ -16,9 +16,10 @@ from searx.engines.xpath import extract_text
 from urllib.parse import urlencode
 from searx.utils import gen_useragent
 from searx.webutils import new_hmac
-from searx import settings
+from searx import settings, logger
 import re
 
+logger = logger.getChild('baidu engine')
 
 # engine dependent config
 categories = ['general']
@@ -53,7 +54,6 @@ def request(query, params):
 
 # get response from search-request
 def response(resp):
-    from searx.webapp import sentry
     results = []
 
     dom = html.fromstring(resp.text)
@@ -61,33 +61,23 @@ def response(resp):
     try:
         results.append({'number_of_results': int(dom.xpath('//span[@class="nums_text"]/text()')[0]
                                                  .split(u'\u7ea6')[1].split(u'\u4e2a')[0].replace(',', ''))})
-    except Exception:
-        sentry.captureException()
+    except Exception as e:
+        logger.debug('result error :\n%s', e)
 
+    print(dom.xpath('//div[@class="result c-container new-pmd"]'))
     # parse results
-    for result in dom.xpath('//div[@class="result c-container "]'):
+    for result in dom.xpath('//div[@class="result c-container new-pmd"]'):
         title = extract_text(result.xpath('.//h3/a')[0])
 
         # when search query is Chinese words
         try:
-            url = result.xpath('.//div[@class="f13"]/a')[0].attrib.get('href')
+            url = result.xpath('.//h3[@class="t"]/a')[0].attrib.get('href')
             # To generate miji url with baidu url
-            url = settings['result_proxy'].get('server_name') + "/url_proxy?proxyurl=" + \
-                url + "&token=" + new_hmac(settings['result_proxy']['key'], url.encode("utf-8"))
-            content = extract_text((result.xpath('.//div[@class="c-abstract"]') or result.xpath(
-                './/div[@class="c-abstract c-abstract-en"]'))[0])
-            showurl = extract_text(result.xpath('.//div[@class="f13"]/a')).replace('百度快照', '')
-            if len(showurl.strip()) == 0:
-                showurl = re.findall(WEB_URL_REGEX, content)[0]
-                showurl = showurl.lstrip('.')
-                if len(showurl.strip()) == 0:
-                    showurl = url
+            content = extract_text((result.xpath('.//div[@class="c-abstract"]') or 
+                result.xpath('.//div[@class="c-abstract c-abstract-en"]')))
 
             # append result
-            results.append({'url': url,
-                            'showurl': showurl,
-                            'title': title,
-                            'content': content})
+            results.append({'url': url,'title': title,'content': content})
 
         # when search query is English words
         except Exception:
@@ -98,19 +88,13 @@ def response(resp):
                 # To generate miji url with baidu url
                 url = settings['result_proxy'].get('server_name') + "/url_proxy?proxyurl=" + \
                     url + "&token=" + new_hmac(settings['result_proxy']['key'], url.encode("utf-8"))
-                if len(showurl.strip()) == 0:
-                    showurl = re.findall(WEB_URL_REGEX, content)[0]
-                    showurl = showurl.lstrip('.')
-                    if len(showurl.strip()) == 0:
-                        showurl = url
 
                 # append result
                 results.append({'url': url,
-                                'showurl': showurl,
                                 'title': title,
                                 'content': content})
-            except Exception:
-                sentry.captureException()
+            except Exception as e:
+                logger.debug('result error :\n%s', e)
 
     # return results
     return results
