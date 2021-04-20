@@ -11,7 +11,8 @@
 """
 
 from json import loads
-from searx.url_utils import urlencode
+from urllib.parse import urlencode
+from searx import logger
 import re
 
 # engine dependent config
@@ -24,6 +25,7 @@ base_url = 'https://image.baidu.com/'
 search_string = 'search/acjson?tn=resultjson_com&ipn=rj&istype=2&ie=utf-8&{query}&pn={offset}'
 image_length = 20
 
+logger = logger.getChild('baidu image engine')
 
 # do search-request
 def request(query, params):
@@ -40,7 +42,6 @@ def request(query, params):
 
 # get response from search-request
 def response(resp):
-    from searx.webapp import sentry
     use_resp = resp.content
     try:
         resultdic = loads(use_resp)
@@ -68,7 +69,7 @@ def response(resp):
                             'height': height,
                             'img_src': img_src})
         except Exception as e:
-            sentry.captureException()
+            logger.debug('result error :\n%s', e)
 
     # return results
     return results

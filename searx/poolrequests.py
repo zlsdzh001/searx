@@ -178,6 +178,7 @@ def request(method, url, **kwargs):
         del kwargs['raise_for_httperror']
 
     # do request
+    # baidu image not support Accept-Encoding header
     response = session.request(method=method, url=url, **kwargs)
 
     time_after_request = time()
