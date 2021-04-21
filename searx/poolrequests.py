@@ -8,6 +8,9 @@ import requests
 from searx import settings
 from searx import logger
 from searx.raise_for_httperror import raise_for_httperror
+from collections import OrderedDict
+
+import ast
 
 
 logger = logger.getChild('poolrequests')
@@ -179,7 +182,12 @@ def request(method, url, **kwargs):
 
     # do request
     # baidu image not support Accept-Encoding header
-    response = session.request(method=method, url=url, **kwargs)
+    if url.startswith('https://image.baidu.com/search/acjson'):
+        response = session.request(method=method, url=url, headers=OrderedDict(kwargs['headers']))
+        if ast.literal_eval(response.text).__contains__('antiFlag'):
+            response = session.request(method=method, url=url, headers=OrderedDict(kwargs['headers']))
+    else:
+        response = session.request(method=method, url=url, **kwargs)
 
     time_after_request = time()
 

@@ -52,7 +52,12 @@ def response(resp):
 
     for image in resultlist:
         try:
-            url = image["replaceUrl"][0]["FromURL"]
+            if image.__contains__('replaceUrl'):
+                url = image["replaceUrl"][0]["FromURL"]
+            elif image.__contains__('hoverURL'):
+                url = image["hoverURL"]
+            elif image.__contains__('thumbURL'):
+                url = image["thumbURL"]
             title = image["fromPageTitle"].replace("<strong>", "").replace("</strong>", "")
             thumbnail = image["thumbURL"]
             img_src = image["thumbURL"]
