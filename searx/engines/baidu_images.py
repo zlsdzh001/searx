@@ -58,9 +58,20 @@ def response(resp):
                 url = image["hoverURL"]
             elif image.__contains__('thumbURL'):
                 url = image["thumbURL"]
-            title = image["fromPageTitle"].replace("<strong>", "").replace("</strong>", "")
-            thumbnail = image["thumbURL"]
-            img_src = image["thumbURL"]
+
+            if image.__contains__('fromPageTitle'):
+                title = image["fromPageTitle"].replace("<strong>", "").replace("</strong>", "")
+            elif image.__contains__('fromPageTitleEnc'):
+                title = image["fromPageTitleEnc"]
+            else:
+                continue
+
+            if image.__contains__('thumbURL'):
+                thumbnail = image["thumbURL"]
+                img_src = image["thumbURL"]
+            else:
+                continue
+
             width = image["width"]
             height = image["height"]
 
