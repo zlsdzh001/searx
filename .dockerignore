@@ -54,3 +54,7 @@ dist/
 local/
 gh-pages/
 searx.egg-info/
+
+.vscode/
+.idea/
+penv/
