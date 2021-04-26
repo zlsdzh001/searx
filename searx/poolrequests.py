@@ -181,13 +181,7 @@ def request(method, url, **kwargs):
         del kwargs['raise_for_httperror']
 
     # do request
-    # baidu image not support Accept-Encoding header
-    if url.startswith('https://image.baidu.com/search/acjson'):
-        response = session.request(method=method, url=url, headers=OrderedDict(kwargs['headers']))
-        if ast.literal_eval(response.text).__contains__('antiFlag'):
-            response = session.request(method=method, url=url, headers=OrderedDict(kwargs['headers']))
-    else:
-        response = session.request(method=method, url=url, **kwargs)
+    response = session.request(method=method, url=url, **kwargs)
 
     time_after_request = time()
 
