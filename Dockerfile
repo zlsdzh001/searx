@@ -48,6 +48,8 @@ RUN apk upgrade --no-cache \
     uwsgi \
     uwsgi-python3 \
     brotli \
+    && pip install pip -U \
+    && pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple \
     && pip3 install --upgrade pip \
     && pip3 install --no-cache -r requirements.txt \
     && apk del build-dependencies \
