@@ -185,7 +185,7 @@ engines:
   - name : youtube
     shortcut : yt
     engine : youtube_noapi
-    api_key : 'AIzaSyBhoaREjohRh0NO9R_x5qZpO2lAR1AA3Js'
+    api_key : '1AIzaSyBhoaREjohRh0NO9R_x5qZpO2lAR1AA3Js'
 
   - name : google
     engine : google
